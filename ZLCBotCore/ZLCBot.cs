@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ZLCBotCore.ControllerLogic;
 using ZLCBotCore.Services;
 
 namespace ZLCBotCore
@@ -32,7 +33,8 @@ namespace ZLCBotCore
                                                   .AddSingleton(new CommandService(new CommandServiceConfig { DefaultRunMode = RunMode.Async, LogLevel = LogSeverity.Debug, CaseSensitiveCommands = false, ThrowOnError = false }))
                                                   .AddSingleton<StartupService>()
                                                   .AddSingleton<LoggingService>()
-                                                  .AddSingleton<CommandHandler>();
+                                                  .AddSingleton<CommandHandler>()
+                                                  .AddSingleton<OnlineControllerLogic>();
 
 
 
@@ -45,6 +47,8 @@ namespace ZLCBotCore
 
             // Instantiate the Logger
             serviceProvider.GetRequiredService<LoggingService>();
+            // Instantiate Controller Logic.
+            serviceProvider.GetRequiredService<OnlineControllerLogic>();
 
             // Start the bot
             await serviceProvider.GetRequiredService<StartupService>().StartAsync();

@@ -23,4 +23,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Modules\Admin\" />
+  </ItemGroup>
+
 </Project>

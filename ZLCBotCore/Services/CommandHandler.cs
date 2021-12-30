@@ -58,7 +58,7 @@ namespace ZLCBotCore.Services
                 }
                 else
                 {
-                    await msg.Author.SendMessageAsync($"** {result.ErrorReason} ** :\n\t{msg.Content}");
+                    await msg.Author.SendMessageAsync($"**Error: {result.ErrorReason}**\n\t'{msg.Content}'");
                 }
             }
         }
