@@ -6,7 +6,14 @@ namespace ZLCBotCore
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            try
+            {
+                new ZLCBot().StartAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
