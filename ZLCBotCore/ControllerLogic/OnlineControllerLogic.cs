@@ -216,7 +216,7 @@ namespace ZLCBotCore.ControllerLogic
 
             if (CurrentPostedControllers.Count() <= 0)
             {
-                embed.AddField(new EmbedFieldBuilder { Name = "", Value = "None at this time." });
+                embed.AddField(new EmbedFieldBuilder { Name = "-", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
             }
             else
             {
@@ -299,6 +299,10 @@ namespace ZLCBotCore.ControllerLogic
                     }
                 }
             }
+
+            var time = DateTime.UtcNow.ToString("HH:mm");
+
+            embed.Footer = new EmbedFooterBuilder { Text = $"Updated: {time}z" };
 
             return embed;
         }
