@@ -43,11 +43,13 @@ namespace ZLCBotCore.ControllerLogic
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
             CurrentPostedControllers = new List<VatsimController>();
+            
+            _logger.LogInformation("Loaded: OnlineControllerLogic");
         }
 
         private async void Run(ICommandContext context)
         {
-            _logger.LogInformation("OnlineControllerLogic.Run() Service Started");
+            _logger.LogInformation("Service: OnlineControllerLogic.Run() Service Started");
 
             while (OnlineControllerRun)
             {
@@ -73,7 +75,7 @@ namespace ZLCBotCore.ControllerLogic
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex.Message);
+                                _logger.LogError($"Message: {ex.Message}");
                             }
                         }
 
@@ -92,21 +94,19 @@ namespace ZLCBotCore.ControllerLogic
                         MessageText = FormatDiscordMessage();
 
                         // Check to see if we even have a previous message to edit.
-                        
                         try
                         {
                             await Message.ModifyAsync(msg => msg.Embed = MessageText.Build());
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex.Message);
-                               
+                            _logger.LogError($"Message: {ex.Message}");
+
                             Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
 
                             // Update our LastNewPostTime
                             lastNewPostTime = DateTime.UtcNow;
                         }
-                        
                     }
                 }
                 else
@@ -124,7 +124,7 @@ namespace ZLCBotCore.ControllerLogic
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex.Message);
+                        _logger.LogError($"Message: {ex.Message}");
 
                         Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
 
@@ -139,7 +139,7 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Start(ICommandContext context)
         {
-            _logger.LogInformation("OnlineControllerLogic.Start() Called");
+            _logger.LogInformation("Function: OnlineControllerLogic.Start() Called");
 
             OnlineControllerRun = true;
             Thread t = new Thread(() => Run(context));
@@ -148,14 +148,14 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Stop()
         {
-            _logger.LogInformation("OnlineControllerLogic.Stop() Called");
+            _logger.LogInformation("Function: OnlineControllerLogic.Stop() Called");
 
             OnlineControllerRun = false;
         }
 
         private bool NewControllerLoggedOn()
         {
-            _logger.LogDebug("OnlineControllerLogic.NewControllerLoggedOn() Called");
+            _logger.LogDebug("Function: OnlineControllerLogic.NewControllerLoggedOn() Called");
 
             // ExtractCidFromLists Looks at the online controller list (current) and the Posted Controller List (previous)
             Dictionary<string, List<int>> CidLists = ExtractCidFromLists();
@@ -194,7 +194,7 @@ namespace ZLCBotCore.ControllerLogic
 
         private Dictionary<string, List<int>> ExtractCidFromLists()
         {
-            _logger.LogDebug("OnlineControllerLogic.ExtractCidFromLists() Called");
+            _logger.LogDebug("Function: OnlineControllerLogic.ExtractCidFromLists() Called");
 
             var controllerCids = new Dictionary<string, List<int>>(){
                 {"PostedCids", new List<int>()},
@@ -219,7 +219,7 @@ namespace ZLCBotCore.ControllerLogic
 
         internal EmbedBuilder FormatDiscordMessage()
         {
-            _logger.LogDebug("OnlineControllerLogic.FormatDiscordMessage() Called");
+            _logger.LogDebug("Function: OnlineControllerLogic.FormatDiscordMessage() Called");
 
             var embed = new EmbedBuilder();
 

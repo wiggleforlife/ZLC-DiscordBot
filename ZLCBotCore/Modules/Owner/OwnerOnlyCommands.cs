@@ -35,7 +35,7 @@ namespace ZLCBotCore.Modules.Owner
             _controllerLogic = _services.GetRequiredService<OnlineControllerLogic>();
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            _logger.LogInformation("Loaded: OwnerOnlyCommands");
+            _logger.LogInformation("Module: Loaded OwnerOnlyCommands");
         }
 
 

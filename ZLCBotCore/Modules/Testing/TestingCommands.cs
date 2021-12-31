@@ -36,7 +36,7 @@ namespace ZLCBotCore.Modules.Testing
             _controllerLogic = _services.GetRequiredService<OnlineControllerLogic>();
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            _logger.LogInformation("Loaded: TestingCommands");
+            _logger.LogInformation("Module: Loaded TestingCommands");
         }
 
         // Commands in Development go Here

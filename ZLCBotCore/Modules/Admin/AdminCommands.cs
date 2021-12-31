@@ -35,7 +35,7 @@ namespace ZLCBotCore.Modules.Admin
             _controllerLogic = _services.GetRequiredService<OnlineControllerLogic>();
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            _logger.LogInformation("Loaded: AdminCommands");
+            _logger.LogInformation("Module: Loaded AdminCommands");
         }
 
         // Discord Administrator only commands go here [RequireUserPermission(Discord.GuildPermission.Administrator)]

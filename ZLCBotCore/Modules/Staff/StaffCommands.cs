@@ -36,7 +36,7 @@ namespace ZLCBotCore.Modules.Staff
             _controllerLogic = _services.GetRequiredService<OnlineControllerLogic>();
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
             
-            _logger.LogInformation("Loaded: StaffCommands");
+            _logger.LogInformation("Module: Loaded StaffCommands");
         }
 
         // Discord Staff only commands go here.
