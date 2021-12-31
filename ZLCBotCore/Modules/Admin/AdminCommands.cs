@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +11,9 @@ using System.Threading.Tasks;
 using ZLCBotCore.ControllerLogic;
 using ZLCBotCore.Services;
 
-namespace ZLCBotCore.Modules.Testing
+namespace ZLCBotCore.Modules.Admin
 {
-    public class TestingCommands : ModuleBase
+    class AdminCommands : ModuleBase
     {
         private DiscordShardedClient _client;
         private readonly IConfigurationRoot _config;
@@ -25,20 +24,20 @@ namespace ZLCBotCore.Modules.Testing
         private readonly VatsimApiService _vatsimApi;
 
 
-        public TestingCommands(IServiceProvider services)
+        public AdminCommands(IServiceProvider services)
         {
             _services = services;
             _client = _services.GetRequiredService<DiscordShardedClient>();
             _config = _services.GetRequiredService<IConfigurationRoot>();
             _prefix = _config["prefix"];
-            _logger = _services.GetRequiredService<ILogger<TestingCommands>>();
+            _logger = _services.GetRequiredService<ILogger<AdminCommands>>();
 
             _controllerLogic = _services.GetRequiredService<OnlineControllerLogic>();
             _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            _logger.LogInformation("Loaded: TestingCommands");
+            _logger.LogInformation("Loaded: AdminCommands");
         }
 
-        // Commands in Development go Here
+        // Discord Administrator only commands go here [RequireUserPermission(Discord.GuildPermission.Administrator)]
     }
 }
