@@ -11,10 +11,8 @@ LOGIC:
 - The bot will check to see who is online once every 5min.
 
 - A controller has signed onto a ZLC position that was not online in the previous check.
-
-- - True:
-
-- - - It has been at least 15min since the last new Discord post.
+ - True:
+  - It has been at least 15min since the last new Discord post.
 
 -- True:
 
