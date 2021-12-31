@@ -2,7 +2,7 @@
 
 SUMMARY:
 
-The “ZLC-Online Bot” will make automated posts to the ZLC Discord channel “online-atc”, notifying channel subscribers of new ATC that have signed on, whilst maintaining a continuous roster of controllers online at any given time.
+The “ZLC-Online Bot” will make automated posts to the ZLC Discord channel “online-atc”, notifying channel subscribers of ATC that have signed on, whilst maintaining an updated roster of current online controllers every 5min.
 
 
 
