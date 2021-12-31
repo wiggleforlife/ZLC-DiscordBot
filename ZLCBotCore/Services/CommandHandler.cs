@@ -28,6 +28,8 @@ namespace ZLCBotCore.Services
             _commands = _services.GetRequiredService<CommandService>();
 
             _client.MessageReceived += HandleCommand;
+
+            _logger.LogInformation("Loaded: CommandHandler");
         }
 
         private async Task HandleCommand(SocketMessage parameterMessage)

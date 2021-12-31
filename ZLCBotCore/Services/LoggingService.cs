@@ -23,6 +23,8 @@ namespace ZLCBotCore.Services
 
             _discord.Log += OnLogAsync;
             _commands.Log += OnLogAsync;
+
+            _logger.LogInformation("Loaded: LoggingService");
         }
 
         public Task OnLogAsync(LogMessage msg)

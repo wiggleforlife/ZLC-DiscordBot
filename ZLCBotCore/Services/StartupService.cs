@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace ZLCBotCore.Services
         private readonly CommandService _commands;
         private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _services;
+        private readonly ILogger _logger;
 
         public StartupService(IServiceProvider services)
         {
@@ -23,6 +25,9 @@ namespace ZLCBotCore.Services
             _config = _services.GetRequiredService<IConfigurationRoot>();
             _discord = _services.GetRequiredService<DiscordShardedClient>();
             _commands = _services.GetRequiredService<CommandService>();
+            _logger = _services.GetRequiredService<ILogger<StartupService>>();
+
+            _logger.LogInformation("Loaded: LoggingService");
         }
 
         public async Task StartAsync()

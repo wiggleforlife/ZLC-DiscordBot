@@ -37,6 +37,7 @@ namespace ZLCBotCore.Services
             _logger = _services.GetRequiredService<ILogger<CommandHandler>>();
 
             ZLCOnlineControllers = new List<VatsimController>();
+            _logger.LogInformation("Loaded: VatsimApiService");
         }
 
         private void Run()
