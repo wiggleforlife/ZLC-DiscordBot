@@ -36,6 +36,7 @@ namespace ZLCBotCore.Services
 
             if (string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(token))
             {
+                _logger.LogError("Token: Discord Token is Missing.");
                 throw new Exception("Discord Token is Missing.");
             }
 

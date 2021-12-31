@@ -71,12 +71,12 @@ namespace ZLCBotCore.Services
             {
                 if (context.Channel is IGuildChannel)
                 {
-                    var logText = $"User: [{context.User.Username}]<->[{context.User.Id}] Discord Server: [{context.Guild.Name}] -> [{context.Message.Content}]";
+                    var logText = $"User: {context.User.Username} ({context.User.Id}) Discord Server: [{context.Guild.Name}] -> [{context.Message.Content}]";
                     _logger.LogInformation(logText);
                 }
                 else
                 {
-                    var logText = $"User: [{context.User.Username}]<->[{context.User.Id}] -> [{context.Message.Content}]";
+                    var logText = $"User: {context.User.Username} ({context.User.Id}) -> [{context.Message.Content}]";
                     _logger.LogInformation(logText);
                 }
             });

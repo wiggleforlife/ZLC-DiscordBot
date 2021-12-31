@@ -42,7 +42,7 @@ namespace ZLCBotCore.Services
 
         private void Run()
         {
-            _logger.LogInformation("VatsimApiService.Run Started");
+            _logger.LogInformation("Service: VatsimApiService.Run Started");
 
             while (VatsimServiceRun)
             {
@@ -60,7 +60,7 @@ namespace ZLCBotCore.Services
 
         public void Start()
         {
-            _logger.LogInformation("VatsimApiService.Start() Called");
+            _logger.LogDebug("Function: VatsimApiService.Start() Called");
 
             // Just incharge of reaching out to Vatisim and Vatusa API and keeping a list of who is online! 
             VatsimServiceRun = true;
@@ -71,14 +71,14 @@ namespace ZLCBotCore.Services
 
         public void Stop()
         {
-            _logger.LogInformation("VatsimApiService.Stop() Called");
+            _logger.LogWarning("Function: VatsimApiService.Stop() Called");
 
             VatsimServiceRun = false;
         }
 
         private List<VatsimController> GetOnlineControllers()
         {
-            _logger.LogDebug("VatsimApiService.GetOnlineControllers() Called");
+            _logger.LogDebug("Function: VatsimApiService.GetOnlineControllers() Called");
 
 
             // Vatsim Json Link: https://data.vatsim.net/v3/vatsim-data.json
@@ -88,7 +88,7 @@ namespace ZLCBotCore.Services
             VatsimJsonRootModel AllVatsimInfo = JsonConvert.DeserializeObject<VatsimJsonRootModel>(vatsimJsonString); // TODO - .Net Core has Json Functions in it. Switch to using that instead of Netonsoft.
             if (AllVatsimInfo is null)
             {
-                _logger.LogError("Could not Deserialize Vatsim Json. Is the website down?");
+                _logger.LogError("Json: Could not Deserialize Vatsim Json. Is the website down?");
                 return null;
             }
 
@@ -112,15 +112,17 @@ namespace ZLCBotCore.Services
                             {
                                 string new_name = GetControllerName(controller.cid);
 
-                                controller.name = new_name;
-
-                                controller.UpdatedNameWithVatUsa = true;
-                                _logger.LogDebug($"Controller name Changed [{old_name}] -> [{new_name}]");
+                                if (new_name != null)
+                                {
+                                    controller.name = new_name;
+                                    controller.UpdatedNameWithVatUsa = true;
+                                    _logger.LogDebug($"Name: Controller name Changed [{old_name}] -> [{new_name}]");
+                                }
                             }
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError($"Could not change Controller Name [{controller.name}]: {e.Message}");
+                            _logger.LogError($"Name: Could not change Controller Name [{controller.name}]: {e.Message}");
                             if (string.IsNullOrWhiteSpace(old_name))
                             {
                                 controller.name = "UNKNOWN NAME";
@@ -141,7 +143,7 @@ namespace ZLCBotCore.Services
 
         private string GetControllerName(int cid)
         {
-            _logger.LogDebug($"VatsimApiService.GetControllerName() Called **args[{cid}]");
+            _logger.LogDebug($"Function: VatsimApiService.GetControllerName() Called **args[{cid}]");
 
             // Vatusa API link: https://api.vatusa.net/v2/user/{cid}
 
@@ -150,7 +152,8 @@ namespace ZLCBotCore.Services
             VatusaJsonRoot ControllerInformation = JsonConvert.DeserializeObject<VatusaJsonRoot>(VatusaJsonString); // TODO - .Net Core has Json Functions in it. Switch to using that instead of Netonsoft.
             if (ControllerInformation is null)
             {
-                throw new Exception("Could not Deserialize Vatusa Json. Is the website down?");
+                _logger.LogError("Json: Could not Deserialize Vatusa Json. Is the website down?");
+                return null;
             }
 
             string ControllerFullName = $"{ControllerInformation.data.fname} {ControllerInformation.data.lname}";
@@ -160,13 +163,12 @@ namespace ZLCBotCore.Services
 
         private string ReadJsonFromWebsite(string url)
         {
-            _logger.LogDebug($"VatsimApiService.ReadJsonFromWebsite() Called **args[{url}]");
+            _logger.LogDebug($"Function: VatsimApiService.ReadJsonFromWebsite() Called **args[{url}]");
 
             using (WebClient webClient = new WebClient()) // TODO - Should this really be inside a using statement?
             {
                 string json = webClient.DownloadString(url);
 
-                _logger.LogDebug($"Read JSON from: {url}");
                 return json;
             }
         }
