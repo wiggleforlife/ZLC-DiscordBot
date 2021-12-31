@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Text;
 using System.Threading;
+using ZLCBotCore.ControllerLogic;
+using ZLCBotCore.Data;
 using ZLCBotCore.Models.VatsimJsonData;
 using ZLCBotCore.Models.VatusaJsonData;
 
@@ -25,9 +27,9 @@ namespace ZLCBotCore.Services
         private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _services;
         private readonly ILogger _logger;
+        private readonly ControllerLists _controllerLists;
 
         //public List<VatsimController> ZLCOnlineControllers { get; protected set; }
-        public List<VatsimController> ZLCOnlineControllers { get; protected set; }
 
         public VatsimApiService(IServiceProvider services)
         {
@@ -35,8 +37,8 @@ namespace ZLCBotCore.Services
             _config = _services.GetRequiredService<IConfigurationRoot>();
             _discord = _services.GetRequiredService<DiscordShardedClient>();
             _logger = _services.GetRequiredService<ILogger<CommandHandler>>();
+            _controllerLists = services.GetRequiredService<ControllerLists>();
 
-            ZLCOnlineControllers = new List<VatsimController>();
             _logger.LogInformation("Loaded: VatsimApiService");
         }
 
@@ -50,7 +52,7 @@ namespace ZLCBotCore.Services
 
                 if (!(online is null))
                 {
-                    ZLCOnlineControllers = online;
+                    _controllerLists.ZLCOnlineControllers = online;
                 }
 
                 Thread.Sleep(int.Parse(_config["serviceCheckLimit"]));
@@ -104,6 +106,19 @@ namespace ZLCBotCore.Services
                     if (ZlcPrefixes.Contains(currentControllerPrefix) && Suffixes.Contains(currentControllerSuffix))
                     {
                         string old_name = controller.name;
+
+                        // check current list and fix online list UpdatedNameWithVatUsa bool.
+                        if (_controllerLists.CurrentPostedControllers.Count >= 1)
+                        {
+                            foreach (VatsimController postedController in _controllerLists.CurrentPostedControllers)
+                            {
+                                if (postedController.cid == controller.cid)
+                                {
+                                    controller.UpdatedNameWithVatUsa = postedController.UpdatedNameWithVatUsa;
+                                    break;
+                                }
+                            }
+                        }
 
                         try
                         {

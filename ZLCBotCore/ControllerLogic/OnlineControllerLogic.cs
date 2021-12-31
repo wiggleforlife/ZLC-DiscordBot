@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using ZLCBotCore.Data;
 using ZLCBotCore.Models.VatsimJsonData;
 using ZLCBotCore.Models.VatusaJsonData;
 using ZLCBotCore.Services;
@@ -23,15 +24,14 @@ namespace ZLCBotCore.ControllerLogic
         private readonly IConfigurationRoot _config;
         private readonly ILogger _logger;
         private readonly IServiceProvider _services;
-        private readonly VatsimApiService _vatsimApi;
+        private readonly ControllerLists _controllerLists;
+        //private readonly VatsimApiService _vatsimApi;
 
         private DateTime lastNewPostTime;
-
-        public bool OnlineControllerRun { get; private set; } = false;
-        public List<VatsimController> CurrentPostedControllers { get; private set; }
-
         private IUserMessage Message;
         public EmbedBuilder MessageText = null;
+        
+        public bool OnlineControllerRun { get; private set; } = false;
 
 
 
@@ -40,9 +40,9 @@ namespace ZLCBotCore.ControllerLogic
             _services = services;
             _logger = _services.GetRequiredService<ILogger<CommandHandler>>();
             _config = _services.GetRequiredService<IConfigurationRoot>();
-            _vatsimApi = _services.GetRequiredService<VatsimApiService>();
+            _controllerLists = _services.GetRequiredService<ControllerLists>();
+            //_vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            CurrentPostedControllers = new List<VatsimController>();
             
             _logger.LogInformation("Loaded: OnlineControllerLogic");
         }
@@ -58,7 +58,7 @@ namespace ZLCBotCore.ControllerLogic
                     if (DateTime.UtcNow.Subtract(lastNewPostTime).TotalMinutes >= double.Parse(_config["newPostLimit"]))
                     {
                         // Update our current Posted List to be that same as the online list.
-                        CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+                        _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
 
                         // Build out our Message! this will be used to either post new or edit previous.
                         MessageText = FormatDiscordMessage();
@@ -86,7 +86,7 @@ namespace ZLCBotCore.ControllerLogic
                     else
                     {
                         // Update our current Posted List to be that same as the online list.
-                        CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+                        _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
 
                         // Build out our Message! this will be used to either post new or edit previous.
                         MessageText = FormatDiscordMessage();
@@ -110,7 +110,7 @@ namespace ZLCBotCore.ControllerLogic
                 else
                 {
                     // Update our current Posted List to be that same as the online list.
-                    CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+                    _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
 
                     // Build out our Message! this will be used to either post new or edit previous.
                     MessageText = FormatDiscordMessage();
@@ -202,12 +202,12 @@ namespace ZLCBotCore.ControllerLogic
             List<int> currentCids = new List<int>();
             List<int> onlineCids = new List<int>();
 
-            foreach (VatsimController currentController in CurrentPostedControllers)
+            foreach (VatsimController currentController in _controllerLists.CurrentPostedControllers)
             {
                 controllerCids["PostedCids"].Add(currentController.cid);
             }
 
-            foreach (VatsimController onlineController in _vatsimApi.ZLCOnlineControllers)
+            foreach (VatsimController onlineController in _controllerLists.ZLCOnlineControllers)
             {
                 controllerCids["OnlineCids"].Add(onlineController.cid);
             }
@@ -223,7 +223,7 @@ namespace ZLCBotCore.ControllerLogic
 
             embed.Title = "ONLINE ZLC ATC:";
 
-            if (CurrentPostedControllers.Count() <= 0)
+            if (_controllerLists.CurrentPostedControllers.Count() <= 0)
             {
                 embed.AddField(new EmbedFieldBuilder { Name = "-", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
             }
@@ -241,7 +241,7 @@ namespace ZLCBotCore.ControllerLogic
                 atcBySuffix.Add("OBS", new List<VatsimController>());
 
 
-                foreach (var onlineController in CurrentPostedControllers)
+                foreach (var onlineController in _controllerLists.CurrentPostedControllers)
                 {
                     var callsign_split_test = onlineController.callsign.Split('_');
                     var suffix = callsign_split_test[callsign_split_test.Length - 1];

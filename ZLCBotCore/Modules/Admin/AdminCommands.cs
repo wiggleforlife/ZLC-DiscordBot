@@ -13,7 +13,7 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Admin
 {
-    class AdminCommands : ModuleBase
+    public class AdminCommands : ModuleBase
     {
         private DiscordShardedClient _client;
         private readonly IConfigurationRoot _config;

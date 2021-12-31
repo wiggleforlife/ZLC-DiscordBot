@@ -13,7 +13,7 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Owner
 {
-    class OwnerOnlyCommands : ModuleBase
+    public class OwnerOnlyCommands : ModuleBase
     {
         private DiscordShardedClient _client;
         private readonly IConfigurationRoot _config;

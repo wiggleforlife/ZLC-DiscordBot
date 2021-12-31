@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ZLCBotCore.ControllerLogic;
+using ZLCBotCore.Data;
 using ZLCBotCore.Services;
 
 namespace ZLCBotCore
@@ -34,7 +35,8 @@ namespace ZLCBotCore
                                                   .AddSingleton<LoggingService>()
                                                   .AddSingleton<CommandHandler>()
                                                   .AddSingleton<OnlineControllerLogic>()
-                                                  .AddSingleton<VatsimApiService>();
+                                                  .AddSingleton<VatsimApiService>()
+                                                  .AddSingleton<ControllerLists>();
 
 
 
@@ -47,9 +49,6 @@ namespace ZLCBotCore
 
             // Instantiate the Logger
             serviceProvider.GetRequiredService<LoggingService>();
-
-            // Instantiate Controller Logic.
-            serviceProvider.GetRequiredService<OnlineControllerLogic>();
 
             // Start the bot
             await serviceProvider.GetRequiredService<StartupService>().StartAsync();

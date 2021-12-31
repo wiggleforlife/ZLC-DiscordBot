@@ -14,7 +14,7 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Staff
 {
-    class StaffCommands : ModuleBase
+    public class StaffCommands : ModuleBase
     {
         private DiscordShardedClient _client;
         private readonly IConfigurationRoot _config;
