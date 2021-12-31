@@ -12,9 +12,9 @@ LOGIC:
 
 - A controller has signed onto a ZLC position that was not online in the previous check.
 
--- True:
+- - True:
 
---- It has been at least 15min since the last new Discord post.
+- - - It has been at least 15min since the last new Discord post.
 
 -- True:
 
