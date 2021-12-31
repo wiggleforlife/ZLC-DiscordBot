@@ -16,5 +16,5 @@ LOGIC:
          - The bot will delete the previous post and submit a new post with all of the current ZLC controllers online. (notifying the channel subscribers)
        - False:
          - The bot will edit the previous post to display all of the current controllers online. (without notifying the channel subscribers)
-- False:
-  - The bot will edit the previous post to display all of the current controllers online. (without notifying the channel subscribers)
+   - False:
+     - The bot will edit the previous post to display all of the current controllers online. (without notifying the channel subscribers)
