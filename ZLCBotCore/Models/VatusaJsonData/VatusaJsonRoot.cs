@@ -7,6 +7,6 @@ namespace ZLCBotCore.Models.VatusaJsonData
     public class VatusaJsonRoot
     {
         public VatusaData data { get; set; }
-        public bool testing { get; set; }
+        public bool? testing { get; set; }
     }
 }

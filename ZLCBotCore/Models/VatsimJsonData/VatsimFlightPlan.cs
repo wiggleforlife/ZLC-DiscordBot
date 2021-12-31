@@ -20,7 +20,7 @@ namespace ZLCBotCore.Models.VatsimJsonData
         public string fuel_time { get; set; }
         public string remarks { get; set; }
         public string route { get; set; }
-        public int revision_id { get; set; }
+        public int? revision_id { get; set; }
         public string assigned_transponder { get; set; }
     }
 }
