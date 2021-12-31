@@ -12,218 +12,221 @@ using System.Text;
 using System.Threading;
 using ZLCBotCore.Models.VatsimJsonData;
 using ZLCBotCore.Models.VatusaJsonData;
+using ZLCBotCore.Services;
 
 namespace ZLCBotCore.ControllerLogic
 {
+
+    // TODO - Make this a service and take some parts out that dont make sense in a discord bot.
     public class OnlineControllerLogic
     {
-        public bool KeepRunning { get; set; } = false;
-        public EmbedBuilder MessageText { get; protected set; } = null;
+        private readonly IConfigurationRoot _config;
+        private readonly ILogger _logger;
+        private readonly IServiceProvider _services;
+        private readonly VatsimApiService _vatsimApi;
+
+        private DateTime lastNewPostTime;
+
+        public bool OnlineControllerRun { get; private set; } = false;
+        public List<VatsimController> CurrentPostedControllers { get; private set; }
 
         private IUserMessage Message;
+        public EmbedBuilder MessageText = null;
 
-        public List<VatsimController> CurrentControllerList { get; set; }
 
-        public static readonly List<string> ZlcPrefixes = new List<string> { "LAX", "OAK", "BUR", "BIL", "BOI", "BZN", "SUN", "GPI", "GTF", "HLN", "IDA", "JAC", "TWF", "MSO", "OGD", "PIH", "PVU", "SLC", "ZLC" };
-        public static readonly List<string> Suffixes = new List<string> { "DEL", "GND", "TWR", "APP", "DEP", "CTR", "TMU" };
-
-        private readonly IConfigurationRoot _config;
-        private readonly IServiceProvider _services;
-        private readonly ILogger _logger;
 
         public OnlineControllerLogic(IServiceProvider services)
         {
             _services = services;
+            _logger = _services.GetRequiredService<ILogger<CommandHandler>>();
             _config = _services.GetRequiredService<IConfigurationRoot>();
-            _logger = _services.GetRequiredService<ILogger<OnlineControllerLogic>>();
+            _vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
-            CurrentControllerList = new List<VatsimController>();
+            CurrentPostedControllers = new List<VatsimController>();
         }
 
-        public async void Run(ICommandContext context)
+        private async void Run(ICommandContext context)
         {
-            while (KeepRunning)
+            while (OnlineControllerRun)
             {
-                CheckControllers();
+                // TODO - Change this interval to 5Minues converted for Miliseconds.
 
-                if (!(MessageText is null))
+                if (NewControllerLoggedOn())
                 {
-                    if (Message is null)
+                    if (DateTime.UtcNow.Subtract(lastNewPostTime).TotalMinutes >= double.Parse(_config["newPostLimit"]))
                     {
+                        // Update our current Posted List to be that same as the online list.
+                        CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+
+                        // Build out our Message! this will be used to either post new or edit previous.
+                        MessageText = FormatDiscordMessage();
+
+                        // Check to see if we even have a previous message to delete.
+                        if (!(Message is null))
+                        {
+                            // We do so delete it.
+                            try
+                            {
+                                await Message.DeleteAsync();
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex.Message);
+                            }
+                        }
+
+                        // Post a new message and save it into our variable Message
                         Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
+
+                        // Update our LastNewPostTime
+                        lastNewPostTime = DateTime.UtcNow;
                     }
                     else
                     {
+                        // Update our current Posted List to be that same as the online list.
+                        CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+
+                        // Build out our Message! this will be used to either post new or edit previous.
+                        MessageText = FormatDiscordMessage();
+
+                        // Check to see if we even have a previous message to edit.
+                        
+                        try
+                        {
+                            await Message.ModifyAsync(msg => msg.Embed = MessageText.Build());
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex.Message);
+                               
+                            Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
+
+                            // Update our LastNewPostTime
+                            lastNewPostTime = DateTime.UtcNow;
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    // Update our current Posted List to be that same as the online list.
+                    CurrentPostedControllers = _vatsimApi.ZLCOnlineControllers;
+
+                    // Build out our Message! this will be used to either post new or edit previous.
+                    MessageText = FormatDiscordMessage();
+
+                    // Check to see if we even have a previous message to edit.
+                    try
+                    {
                         await Message.ModifyAsync(msg => msg.Embed = MessageText.Build());
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+
+                        Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
+
+                        // Update our LastNewPostTime
+                        lastNewPostTime = DateTime.UtcNow;
                     }
                 }
 
-                Thread.Sleep(17000);
+                Thread.Sleep(int.Parse(_config["serviceCheckLimit"]));
             }
         }
 
-        private void CheckControllers()
+        public void Start(ICommandContext context)
         {
-            _logger.LogDebug("CheckControllersCalled.");
-            List<VatsimController> OnlineControllerList;
+            OnlineControllerRun = true;
+            Thread t = new Thread(() => Run(context));
+            t.Start();
+        }
 
-            try
-            {
-                OnlineControllerList = GetOnlineControllers();
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-            
-            if (CurrentControllerListHasChanged(OnlineControllerList))
-            {
-                CurrentControllerList = OnlineControllerList;
+        public void Stop()
+        {
+            OnlineControllerRun = false;
+        }
 
-                MessageText = FormatDiscordMessage();
+        private bool NewControllerLoggedOn()
+        {
+            // ExtractCidFromLists Looks at the online controller list (current) and the Posted Controller List (previous)
+            Dictionary<string, List<int>> CidLists = ExtractCidFromLists();
+
+            // The ".Except" will return a list with ONLY the difference in the two lists (from above)
+            // Note: the way this is set up, it will only grab the differences from the online Controller List. See example below
+            // Example 1: 
+            //      PostedCids = [123, 456, 789]
+            //      OnlineCids = [123, 456, 789]
+            //         This would return Nothing (i.e. No change)
+            // Example 2: 
+            //      PostedCids = [123, 456, 789, 555]
+            //      OnlineCids = [123, 456, 789]
+            //         This would return Nothing (i.e. No change)
+            //         Since we only care about New OnlineCids
+            // Example 3: 
+            //      PostedCids = [123, 456, 789]
+            //      OnlineCids = [123, 456, 789, 777]
+            //         This would return One CID (i.e. 777)
+            // Example 4: 
+            //      PostedCids = [123, 456, 789]
+            //      OnlineCids = [123, 456, 789, 777, 888, 999]
+            //         This would return Three CIDs (i.e. 777, 888, 999)
+
+            IEnumerable<int> differenceQuery = CidLists["OnlineCids"].Except(CidLists["PostedCids"]);
+
+            if (differenceQuery.Count() == 0)
+            {
+                return false;
             }
+            else
+            {
+                return true;
+            }
+        }
+
+        private Dictionary<string, List<int>> ExtractCidFromLists()
+        {
+            var controllerCids = new Dictionary<string, List<int>>(){
+                {"PostedCids", new List<int>()},
+                {"OnlineCids", new List<int>()}
+            };
+
+            List<int> currentCids = new List<int>();
+            List<int> onlineCids = new List<int>();
+
+            foreach (VatsimController currentController in CurrentPostedControllers)
+            {
+                controllerCids["PostedCids"].Add(currentController.cid);
+            }
+
+            foreach (VatsimController onlineController in _vatsimApi.ZLCOnlineControllers)
+            {
+                controllerCids["OnlineCids"].Add(onlineController.cid);
+            }
+
+            return controllerCids;
         }
 
         internal EmbedBuilder FormatDiscordMessage()
         {
-            string msgOutput = "DISCORD MESSAGE - CURRENT ONLINE CONTROLLERS:\n"; // TODO - Should be a stringbuilder but for testing purposes we will just use a regular string. 
-
-            if (CurrentControllerList.Count() == 0)
-            {
-                msgOutput += "\tNone";
-            }
-            else
-            {
-                foreach (VatsimController controller in CurrentControllerList)
-                {
-                    msgOutput += $"\t{controller.callsign} - {controller.name}\n";
-                }
-            }
-
 
             var embed = new EmbedBuilder();
 
-            embed.Title = "ONLINE CONTROLLER LIST!";
+            embed.Title = "ONLINE ZLC ATC:";
 
-            foreach (var onlineController in CurrentControllerList)
+            if (CurrentPostedControllers.Count() <= 0)
             {
-                embed.AddField(new EmbedFieldBuilder { Name = onlineController.callsign, Value = onlineController.name });
-            }
-            
-            
-            return embed;
-        }
-
-        internal bool CurrentControllerListHasChanged(List<VatsimController> OnlineControllers)
-        {
-            if (CurrentControllerList.Count() != OnlineControllers.Count())
-            {
-                return true;
-            }
-            else if (CurrentControllerList.Count() == 0 && OnlineControllers.Count() == 0)
-            {
-                return false;
-            }
-
-            List<List<int>> CidLists = ExtractCidFromLists(OnlineControllers);
-
-            IEnumerable<int> differenceQuery = CidLists[0].Except(CidLists[1]);
-            IEnumerable<int> differenceQueryTwo = CidLists[1].Except(CidLists[0]);
-
-            if (differenceQuery.Count() == 0 && differenceQueryTwo.Count() == 0) // TODO - Double Check this, it should be returning true when someone logs off, but its not.
-            {
-                return false;
+                embed.AddField(new EmbedFieldBuilder { Value = "None at this time." });
             }
             else
             {
-                return true;
-            }
-        }
-
-        internal List<List<int>> ExtractCidFromLists(List<VatsimController> OnlineControllers)
-        {
-            List<int> currentCids = new List<int>();
-            List<int> onlineCids = new List<int>();
-
-            foreach (VatsimController currentController in CurrentControllerList)
-            {
-                currentCids.Add(currentController.cid);
-            }
-
-            foreach (VatsimController onlineController in OnlineControllers)
-            {
-                onlineCids.Add(onlineController.cid);
-            }
-
-            return new List<List<int>> { currentCids, onlineCids };
-        }
-
-        internal List<VatsimController> GetOnlineControllers()
-        {
-            // Vatsim Json Link: https://data.vatsim.net/v3/vatsim-data.json
-
-            string vatsimJsonString = ReadJsonFromWebsite("https://data.vatsim.net/v3/vatsim-data.json");
-
-            VatsimJsonRootModel AllVatsimInfo = JsonConvert.DeserializeObject<VatsimJsonRootModel>(vatsimJsonString); // TODO - .Net Core has Json Functions in it. Switch to using that instead of Netonsoft.
-            if (AllVatsimInfo is null)
-            {
-                throw new Exception("Could not Deserialize Vatsim Json. Is the website down?");
-            }
-
-            List<VatsimController> OnlineControllers = new List<VatsimController>();
-
-            foreach (VatsimController controller in AllVatsimInfo.controllers)
-            {
-                if (controller.callsign.Contains('_'))
+                foreach (var onlineController in CurrentPostedControllers)
                 {
-                    string[] CallsignSplit = controller.callsign.Split('_');
-                    string currentControllerPrefix = CallsignSplit[0];
-                    string currentControllerSuffix = CallsignSplit[CallsignSplit.Length - 1];
-
-                    if (ZlcPrefixes.Contains(currentControllerPrefix) && Suffixes.Contains(currentControllerSuffix))
-                    {
-                        try
-                        {
-                            controller.name = GetControllerName(controller.cid);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception(e.Message);
-                        }
-
-                        OnlineControllers.Add(controller);
-                    }
+                    embed.AddField(new EmbedFieldBuilder { Name = onlineController.callsign, Value = onlineController.name});
                 }
             }
 
-            return OnlineControllers;
-        }
-
-        internal string GetControllerName(int cid)
-        {
-            // Vatusa API link: https://api.vatusa.net/v2/user/{cid}
-
-            string VatusaJsonString = ReadJsonFromWebsite($"https://api.vatusa.net/v2/user/{cid}");
-
-            VatusaJsonRoot ControllerInformation = JsonConvert.DeserializeObject<VatusaJsonRoot>(VatusaJsonString); // TODO - .Net Core has Json Functions in it. Switch to using that instead of Netonsoft.
-            if (ControllerInformation is null)
-            {
-                throw new Exception("Could not Deserialize Vatusa Json. Is the website down?");
-            }
-
-            string ControllerFullName = $"{ControllerInformation.data.fname} {ControllerInformation.data.lname}";
-
-            return ControllerFullName;
-        }
-
-        internal string ReadJsonFromWebsite(string url)
-        {
-            using (WebClient webClient = new WebClient()) // TODO - Should this really be inside a using statement?
-            {
-                string json = webClient.DownloadString(url);
-
-                return json;
-            }
+            return embed;
         }
     }
 }

@@ -34,7 +34,8 @@ namespace ZLCBotCore
                                                   .AddSingleton<StartupService>()
                                                   .AddSingleton<LoggingService>()
                                                   .AddSingleton<CommandHandler>()
-                                                  .AddSingleton<OnlineControllerLogic>();
+                                                  .AddSingleton<OnlineControllerLogic>()
+                                                  .AddSingleton<VatsimApiService>();
 
 
 
