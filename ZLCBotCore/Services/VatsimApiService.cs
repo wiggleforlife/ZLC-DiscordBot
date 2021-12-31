@@ -53,7 +53,6 @@ namespace ZLCBotCore.Services
                     ZLCOnlineControllers = online;
                 }
 
-                // TODO - Change this interval to 5Minues converted for Miliseconds.
                 Thread.Sleep(int.Parse(_config["serviceCheckLimit"]));
             }
         }

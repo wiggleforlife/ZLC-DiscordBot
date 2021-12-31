@@ -68,7 +68,7 @@ namespace ZLCBotCore
             //Remove default HttpClient logging as it is extremely verbose
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             //TODO Configure logging level              
-            var logLevel = "debug";
+            var logLevel = "debug"; 
             var level = Serilog.Events.LogEventLevel.Error;
             if (!string.IsNullOrEmpty(logLevel))
             {
@@ -112,11 +112,5 @@ namespace ZLCBotCore
                     .MinimumLevel.Is(level)
                     .CreateLogger();
         }
-
-        //private Task Log(LogMessage msg)
-        //{
-        //    Console.WriteLine(msg.ToString());
-        //    return Task.CompletedTask;
-        //}
     }
 }

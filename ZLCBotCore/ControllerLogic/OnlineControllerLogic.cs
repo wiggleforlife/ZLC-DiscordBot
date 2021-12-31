@@ -53,8 +53,6 @@ namespace ZLCBotCore.ControllerLogic
 
             while (OnlineControllerRun)
             {
-                // TODO - Change this interval to 5Minues converted for Miliseconds.
-
                 if (NewControllerLoggedOn())
                 {
                     if (DateTime.UtcNow.Subtract(lastNewPostTime).TotalMinutes >= double.Parse(_config["newPostLimit"]))
