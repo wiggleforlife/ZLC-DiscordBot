@@ -47,6 +47,8 @@ namespace ZLCBotCore.ControllerLogic
 
         private async void Run(ICommandContext context)
         {
+            _logger.LogInformation("OnlineControllerLogic.Run() Service Started");
+
             while (OnlineControllerRun)
             {
                 // TODO - Change this interval to 5Minues converted for Miliseconds.
@@ -137,6 +139,8 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Start(ICommandContext context)
         {
+            _logger.LogInformation("OnlineControllerLogic.Start() Called");
+
             OnlineControllerRun = true;
             Thread t = new Thread(() => Run(context));
             t.Start();
@@ -144,11 +148,15 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Stop()
         {
+            _logger.LogInformation("OnlineControllerLogic.Stop() Called");
+
             OnlineControllerRun = false;
         }
 
         private bool NewControllerLoggedOn()
         {
+            _logger.LogDebug("OnlineControllerLogic.NewControllerLoggedOn() Called");
+
             // ExtractCidFromLists Looks at the online controller list (current) and the Posted Controller List (previous)
             Dictionary<string, List<int>> CidLists = ExtractCidFromLists();
 
@@ -186,6 +194,8 @@ namespace ZLCBotCore.ControllerLogic
 
         private Dictionary<string, List<int>> ExtractCidFromLists()
         {
+            _logger.LogDebug("OnlineControllerLogic.ExtractCidFromLists() Called");
+
             var controllerCids = new Dictionary<string, List<int>>(){
                 {"PostedCids", new List<int>()},
                 {"OnlineCids", new List<int>()}
@@ -209,6 +219,7 @@ namespace ZLCBotCore.ControllerLogic
 
         internal EmbedBuilder FormatDiscordMessage()
         {
+            _logger.LogDebug("OnlineControllerLogic.FormatDiscordMessage() Called");
 
             var embed = new EmbedBuilder();
 
@@ -229,6 +240,8 @@ namespace ZLCBotCore.ControllerLogic
                 atcBySuffix.Add("TWR", new List<VatsimController>());
                 atcBySuffix.Add("GND", new List<VatsimController>());
                 atcBySuffix.Add("DEL", new List<VatsimController>());
+                atcBySuffix.Add("OBS", new List<VatsimController>());
+
 
                 foreach (var onlineController in CurrentPostedControllers)
                 {
@@ -291,6 +304,11 @@ namespace ZLCBotCore.ControllerLogic
                             case "TWR":
                                 {
                                     embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "OBS":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Observer__**", Value = $"{valueForField}" });
                                     break;
                                 }
                             default:
