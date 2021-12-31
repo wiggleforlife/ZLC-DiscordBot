@@ -67,7 +67,7 @@ namespace ZLCBotCore.Services
 
         private async Task LogCommandUse(SocketCommandContext context, IResult result)
         {
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
                 if (context.Channel is IGuildChannel)
                 {

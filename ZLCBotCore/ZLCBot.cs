@@ -17,7 +17,6 @@ namespace ZLCBotCore
 {
     public class ZLCBot
     {
-        private CommandHandler _handler;
         private static IConfigurationRoot _config;
 
         public async Task StartAsync()
