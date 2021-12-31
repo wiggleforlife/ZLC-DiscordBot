@@ -139,7 +139,7 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Start(ICommandContext context)
         {
-            _logger.LogInformation("Function: OnlineControllerLogic.Start() Called");
+            _logger.LogDebug("Function: OnlineControllerLogic.Start() Called");
 
             OnlineControllerRun = true;
             Thread t = new Thread(() => Run(context));
@@ -148,7 +148,7 @@ namespace ZLCBotCore.ControllerLogic
 
         public void Stop()
         {
-            _logger.LogInformation("Function: OnlineControllerLogic.Stop() Called");
+            _logger.LogWarning("Function: OnlineControllerLogic.Stop() Called");
 
             OnlineControllerRun = false;
         }
