@@ -107,7 +107,7 @@ namespace ZLCBotCore
                 }
             }
             Log.Logger = new LoggerConfiguration()
-                    .WriteTo.File("logs/njabot.log", rollingInterval: RollingInterval.Day)
+                    .WriteTo.File("logs/zlc-bot.log", rollingInterval: RollingInterval.Day)
                     .WriteTo.Console()
                     .MinimumLevel.Is(level)
                     .CreateLogger();

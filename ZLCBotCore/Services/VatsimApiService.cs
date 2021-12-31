@@ -16,7 +16,6 @@ namespace ZLCBotCore.Services
 {
     public class VatsimApiService
     {
-        // TODO - remove non ZLC Prefixes
         public static List<string> ZlcPrefixes { get; protected set; } = new List<string> { "BIL", "BOI", "BZN", "SUN", "GPI", "GTF", "HLN", "IDA", "JAC", "TWF", "MSO", "OGD", "PIH", "PVU", "SLC", "ZLC" };
         public static List<string> Suffixes { get; protected set; } = new List<string> { "DEL", "GND", "TWR", "APP", "DEP", "CTR", "TMU" };
 
@@ -26,8 +25,6 @@ namespace ZLCBotCore.Services
         private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _services;
         private readonly ILogger _logger;
-
-
 
         //public List<VatsimController> ZLCOnlineControllers { get; protected set; }
         public List<VatsimController> ZLCOnlineControllers { get; protected set; }
@@ -44,6 +41,8 @@ namespace ZLCBotCore.Services
 
         private void Run()
         {
+            _logger.LogInformation("VatsimApiService.Run Started");
+
             while (VatsimServiceRun)
             {
                 var online = GetOnlineControllers();
@@ -60,6 +59,8 @@ namespace ZLCBotCore.Services
 
         public void Start()
         {
+            _logger.LogInformation("VatsimApiService.Start() Called");
+
             // Just incharge of reaching out to Vatisim and Vatusa API and keeping a list of who is online! 
             VatsimServiceRun = true;
 
@@ -69,11 +70,16 @@ namespace ZLCBotCore.Services
 
         public void Stop()
         {
+            _logger.LogInformation("VatsimApiService.Stop() Called");
+
             VatsimServiceRun = false;
         }
 
         private List<VatsimController> GetOnlineControllers()
         {
+            _logger.LogDebug("VatsimApiService.GetOnlineControllers() Called");
+
+
             // Vatsim Json Link: https://data.vatsim.net/v3/vatsim-data.json
 
             string vatsimJsonString = ReadJsonFromWebsite("https://data.vatsim.net/v3/vatsim-data.json");
@@ -97,21 +103,30 @@ namespace ZLCBotCore.Services
 
                     if (ZlcPrefixes.Contains(currentControllerPrefix) && Suffixes.Contains(currentControllerSuffix))
                     {
+                        string old_name = controller.name;
+
                         try
                         {
-                            
-                            string new_name = GetControllerName(controller.cid);
-                            string old_name = controller.name;
+                            if (!controller.UpdatedNameWithVatUsa)
+                            {
+                                string new_name = GetControllerName(controller.cid);
 
-                            controller.name = new_name;
-                            _logger.LogDebug($"Controller name Changed [{old_name}] -> [{new_name}]");
+                                controller.name = new_name;
+
+                                controller.UpdatedNameWithVatUsa = true;
+                                _logger.LogDebug($"Controller name Changed [{old_name}] -> [{new_name}]");
+                            }
                         }
                         catch (Exception e)
                         {
                             _logger.LogError($"Could not change Controller Name [{controller.name}]: {e.Message}");
-                            if (string.IsNullOrWhiteSpace(controller.name))
+                            if (string.IsNullOrWhiteSpace(old_name))
                             {
                                 controller.name = "UNKNOWN NAME";
+                            }
+                            else
+                            {
+                                controller.name = old_name;
                             }
                         }
 
@@ -125,6 +140,8 @@ namespace ZLCBotCore.Services
 
         private string GetControllerName(int cid)
         {
+            _logger.LogDebug($"VatsimApiService.GetControllerName() Called **args[{cid}]");
+
             // Vatusa API link: https://api.vatusa.net/v2/user/{cid}
 
             string VatusaJsonString = ReadJsonFromWebsite($"https://api.vatusa.net/v2/user/{cid}");
@@ -142,6 +159,8 @@ namespace ZLCBotCore.Services
 
         private string ReadJsonFromWebsite(string url)
         {
+            _logger.LogDebug($"VatsimApiService.ReadJsonFromWebsite() Called **args[{url}]");
+
             using (WebClient webClient = new WebClient()) // TODO - Should this really be inside a using statement?
             {
                 string json = webClient.DownloadString(url);

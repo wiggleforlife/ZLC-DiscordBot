@@ -17,5 +17,7 @@ namespace ZLCBotCore.Models.VatsimJsonData
         public string[] text_atis { get; set; }
         public DateTime last_updated { get; set; }
         public DateTime logon_time { get; set; }
+
+        public bool UpdatedNameWithVatUsa { get; set; } = false;
     }
 }
