@@ -18,7 +18,7 @@ namespace ZLCBotCore
     public class ZLCBot
     {
         private CommandHandler _handler;
-        private IConfigurationRoot _config;
+        private static IConfigurationRoot _config;
 
         public async Task StartAsync()
         {
@@ -48,6 +48,7 @@ namespace ZLCBotCore
 
             // Instantiate the Logger
             serviceProvider.GetRequiredService<LoggingService>();
+
             // Instantiate Controller Logic.
             serviceProvider.GetRequiredService<OnlineControllerLogic>();
 
@@ -67,43 +68,19 @@ namespace ZLCBotCore
             services.AddLogging(configure => configure.AddSerilog());
             //Remove default HttpClient logging as it is extremely verbose
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
-            //TODO Configure logging level              
-            var logLevel = "debug"; 
+            
+            var logLevel = _config["logLevel"]; 
             var level = Serilog.Events.LogEventLevel.Error;
             if (!string.IsNullOrEmpty(logLevel))
             {
                 switch (logLevel.ToLower())
                 {
-                    case "error":
-                        {
-                            level = Serilog.Events.LogEventLevel.Error;
-                            break;
-                        }
-                    case "info":
-                        {
-                            level = Serilog.Events.LogEventLevel.Information;
-                            break;
-                        }
-                    case "debug":
-                        {
-                            level = Serilog.Events.LogEventLevel.Debug;
-                            break;
-                        }
-                    case "crit":
-                        {
-                            level = Serilog.Events.LogEventLevel.Fatal;
-                            break;
-                        }
-                    case "warn":
-                        {
-                            level = Serilog.Events.LogEventLevel.Warning;
-                            break;
-                        }
-                    case "trace":
-                        {
-                            level = Serilog.Events.LogEventLevel.Debug;
-                            break;
-                        }
+                    case "error": { level = Serilog.Events.LogEventLevel.Error; break; }
+                    case "info": { level = Serilog.Events.LogEventLevel.Information; break; }
+                    case "debug": { level = Serilog.Events.LogEventLevel.Debug; break; }
+                    case "crit": { level = Serilog.Events.LogEventLevel.Fatal; break; }
+                    case "warn": { level = Serilog.Events.LogEventLevel.Warning; break; }
+                    case "trace": { level = Serilog.Events.LogEventLevel.Debug; break; }
                 }
             }
             Log.Logger = new LoggerConfiguration()
