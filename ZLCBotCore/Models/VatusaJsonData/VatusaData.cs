@@ -28,6 +28,6 @@ namespace ZLCBotCore.Models.VatusaJsonData
         public object[] visiting_facilities { get; set; }
         public bool isMentor { get; set; }
         public bool isSupIns { get; set; }
-        public DateTime last_promotion { get; set; }
+        public DateTime? last_promotion { get; set; }
     }
 }

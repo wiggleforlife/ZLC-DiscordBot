@@ -216,13 +216,87 @@ namespace ZLCBotCore.ControllerLogic
 
             if (CurrentPostedControllers.Count() <= 0)
             {
-                embed.AddField(new EmbedFieldBuilder { Value = "None at this time." });
+                embed.AddField(new EmbedFieldBuilder { Name = "", Value = "None at this time." });
             }
             else
             {
+                Dictionary<string, List<VatsimController>> atcBySuffix = new Dictionary<string, List<VatsimController>>();
+
+                atcBySuffix.Add("TMU", new List<VatsimController>());
+                atcBySuffix.Add("CTR", new List<VatsimController>());
+                atcBySuffix.Add("APP", new List<VatsimController>());
+                atcBySuffix.Add("DEP", new List<VatsimController>());
+                atcBySuffix.Add("TWR", new List<VatsimController>());
+                atcBySuffix.Add("GND", new List<VatsimController>());
+                atcBySuffix.Add("DEL", new List<VatsimController>());
+
                 foreach (var onlineController in CurrentPostedControllers)
                 {
-                    embed.AddField(new EmbedFieldBuilder { Name = onlineController.callsign, Value = onlineController.name});
+                    var callsign_split_test = onlineController.callsign.Split('_');
+                    var suffix = callsign_split_test[callsign_split_test.Length - 1];
+
+
+                    atcBySuffix[suffix].Add(onlineController);
+                    //embed.AddField(new EmbedFieldBuilder { Name = "a", Value = $"**{onlineController.callsign}** {onlineController.name}"});
+                }
+
+                // Sort / Order the controllers in the lists here...
+
+                foreach (var suffix in atcBySuffix.Keys)
+                {
+                    string valueForField = $"";
+                    foreach (VatsimController controller in atcBySuffix[suffix])
+                    {
+                        // Maybe newline at end maybe not.
+                        valueForField += $"***{controller.callsign}*** - {controller.name}\n";
+                    }
+                    valueForField += $"{'\u200B'}\n";
+                    valueForField += $"{'\u200B'}\n";
+
+
+                    if ((!string.IsNullOrEmpty(valueForField) && !string.IsNullOrWhiteSpace(valueForField) && valueForField != $"{'\u200B'}\n{'\u200B'}\n") && (!string.IsNullOrWhiteSpace(suffix) && !string.IsNullOrEmpty(suffix)))
+                    {
+                        switch (suffix)
+                        {
+                            case "TMU":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__TFC Management__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "CTR":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Center__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "APP":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Approach__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "DEP":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Departure__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "GND":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Ground__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "DEL":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Clearance__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            case "TWR":
+                                {
+                                    embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower__**", Value = $"{valueForField}" });
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
 

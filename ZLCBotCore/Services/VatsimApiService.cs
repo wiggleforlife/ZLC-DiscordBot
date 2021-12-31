@@ -17,7 +17,7 @@ namespace ZLCBotCore.Services
     public class VatsimApiService
     {
         // TODO - remove non ZLC Prefixes
-        public static List<string> ZlcPrefixes { get; protected set; } = new List<string> { "ABQ", "HOU", "KC", "NY", "BIL", "BOI", "BZN", "SUN", "GPI", "GTF", "HLN", "IDA", "JAC", "TWF", "MSO", "OGD", "PIH", "PVU", "SLC", "ZLC" };
+        public static List<string> ZlcPrefixes { get; protected set; } = new List<string> { "ASE","MEM","IAH", "ABQ", "HOU", "KC", "NY", "BIL", "BOI", "BZN", "SUN", "GPI", "GTF", "HLN", "IDA", "JAC", "TWF", "MSO", "OGD", "PIH", "PVU", "SLC", "ZLC" };
         public static List<string> Suffixes { get; protected set; } = new List<string> { "DEL", "GND", "TWR", "APP", "DEP", "CTR", "TMU" };
 
         public bool VatsimServiceRun { get; protected set; } = false;
@@ -109,6 +109,10 @@ namespace ZLCBotCore.Services
                         catch (Exception e)
                         {
                             _logger.LogError($"Could not change Controller Name [{controller.name}]: {e.Message}");
+                            if (string.IsNullOrWhiteSpace(controller.name))
+                            {
+                                controller.name = "UNKNOWN NAME";
+                            }
                         }
 
                         OnlineControllers.Add(controller);
