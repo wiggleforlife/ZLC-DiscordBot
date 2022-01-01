@@ -223,9 +223,10 @@ namespace ZLCBotCore.ControllerLogic
             var embed = new EmbedBuilder();
 
             embed.Title = "ONLINE ZLC ATC:";
+            //embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC" };
             embed.Color = new Discord.Color(0, 38, 0);
             embed.Footer = new EmbedFooterBuilder { Text = $"Updated: {time}z" };
-            embed.ThumbnailUrl = "attachment://img/atc-twr.jpg";
+            embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true";
 
             if (_controllerLists.CurrentPostedControllers.Count() <= 0)
             {
