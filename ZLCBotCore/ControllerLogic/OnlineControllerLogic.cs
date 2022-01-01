@@ -216,33 +216,79 @@ namespace ZLCBotCore.ControllerLogic
 
             foreach (var suffix in atcBySuffix.Keys)
             {
+                bool test = false;
                 string valueForField = $"";
                 foreach (VatsimController controller in atcBySuffix[suffix])
                 {
-                    valueForField += $"***{controller.callsign}*** - {controller.name}\n";
+                    string addToField = $"***{controller.callsign}*** - {controller.name}\n";
+
+                    if (valueForField.Length + addToField.Length + $"{'\u200B'}\n{'\u200B'}\n".Length > 1024)
+                    {
+                        //valueForField += $"{'\u200B'}\n{'\u200B'}\n";
+                        AddField(embed, valueForField, suffix, test);
+                        test = true;
+                        valueForField = "";
+                    }
+
+                    valueForField += addToField;
                 }
 
                 valueForField += $"{'\u200B'}\n{'\u200B'}\n";
 
-                if ((!string.IsNullOrEmpty(valueForField) && !string.IsNullOrWhiteSpace(valueForField) && valueForField != $"{'\u200B'}\n{'\u200B'}\n") 
-                     && (!string.IsNullOrWhiteSpace(suffix) && !string.IsNullOrEmpty(suffix)))
-                {
-                    switch (suffix)
-                    {
-                        case "TMU": { embed.AddField(new EmbedFieldBuilder { Name = $"**__TFC Management__**", Value = $"{valueForField}" }); break; }
-                        case "CTR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Center__**", Value = $"{valueForField}" }); break; }
-                        case "APP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Approach__**", Value = $"{valueForField}" }); break; }
-                        case "DEP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Departure__**", Value = $"{valueForField}" }); break; }
-                        case "GND": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Ground__**", Value = $"{valueForField}" }); break; }
-                        case "DEL": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Clearance__**", Value = $"{valueForField}" }); break; }
-                        case "TWR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower__**", Value = $"{valueForField}" }); break; }
-                        case "OBS": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Observer__**", Value = $"{valueForField}" }); break; }
-                        default: { embed.AddField(new EmbedFieldBuilder { Name = $"**__Other__**", Value = $"{valueForField}" }); break; }
-                    }
-                }
+                AddField(embed, valueForField, suffix, test);
             }
 
             return embed;
+        }
+
+        private void AddField(EmbedBuilder embed, string fieldValue, string suffix, bool continuationOfCategory)
+        {
+            switch (continuationOfCategory)
+            {
+                case false:
+                    {
+                        if ((!string.IsNullOrEmpty(fieldValue) && !string.IsNullOrWhiteSpace(fieldValue) && fieldValue != $"{'\u200B'}\n{'\u200B'}\n")
+                             && (!string.IsNullOrWhiteSpace(suffix) && !string.IsNullOrEmpty(suffix)))
+                        {
+                            switch (suffix)
+                            {
+                                case "TMU": { embed.AddField(new EmbedFieldBuilder { Name = $"**__TFC Management__**", Value = $"{fieldValue}" }); break; }
+                                case "CTR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Center__**", Value = $"{fieldValue}" }); break; }
+                                case "APP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Approach__**", Value = $"{fieldValue}" }); break; }
+                                case "DEP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Departure__**", Value = $"{fieldValue}" }); break; }
+                                case "GND": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Ground__**", Value = $"{fieldValue}" }); break; }
+                                case "DEL": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Clearance__**", Value = $"{fieldValue}" }); break; }
+                                case "TWR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower__**", Value = $"{fieldValue}" }); break; }
+                                case "OBS": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Observer__**", Value = $"{fieldValue}" }); break; }
+                                default: { embed.AddField(new EmbedFieldBuilder { Name = $"**__Other__**", Value = $"{fieldValue}" }); break; }
+                            }
+                        }
+
+                        break;
+                    } 
+                case true:
+                    {
+                        if ((!string.IsNullOrEmpty(fieldValue) && !string.IsNullOrWhiteSpace(fieldValue) && fieldValue != $"{'\u200B'}\n{'\u200B'}\n")
+                             && (!string.IsNullOrWhiteSpace(suffix) && !string.IsNullOrEmpty(suffix)))
+                        {
+                            switch (suffix)
+                            {
+                                case "TMU": { embed.AddField(new EmbedFieldBuilder { Name = $"**__TFC Management-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "CTR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Center-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "APP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Approach-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "DEP": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Departure-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "GND": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Ground-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "DEL": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Clearance-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "TWR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                case "OBS": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Observer-Cont.__**", Value = $"{fieldValue}" }); break; }
+                                default: { embed.AddField(new EmbedFieldBuilder { Name = $"**__Other-Cont.__**", Value = $"{fieldValue}" }); break; }
+                            }
+                        }
+                        break;
+                    }
+            }
+
+            
         }
     }
 }
