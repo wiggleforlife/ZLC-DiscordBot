@@ -27,6 +27,12 @@ namespace ZLCBotCore
                                                      .AddJsonFile(path: "config.json");
             _config = _builder.Build();
 
+            if (_config["debuging:fastChecksDebuging"] == "true")
+            {
+                _config["serviceCheckLimit"] = "17000";
+                _config["newPostLimit"] = "1";
+            }
+
             // configure the services 
             var services = new ServiceCollection().AddSingleton(new DiscordShardedClient())
                                                   .AddSingleton(_config)

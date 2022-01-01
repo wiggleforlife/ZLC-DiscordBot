@@ -107,9 +107,10 @@ namespace ZLCBotCore.Services
                 {
                     string[] CallsignSplit = controller.callsign.Split('_');
                     string currentControllerPrefix = CallsignSplit[0];
-                    string currentControllerSuffix = CallsignSplit[CallsignSplit.Length - 1];
+                    string currentControllerSuffix = CallsignSplit[^1];
 
-                    if (ZlcPrefixes.Contains(currentControllerPrefix) && Suffixes.Contains(currentControllerSuffix))
+                    if ((_config["debuging:allowAnyPrefix"] == "true" || ZlcPrefixes.Contains(currentControllerPrefix)) 
+                        && (_config["debuging:allowAnySuffix"] == "true" || Suffixes.Contains(currentControllerSuffix)))
                     {
                         string old_name = controller.name;
 
@@ -128,7 +129,7 @@ namespace ZLCBotCore.Services
 
                         try
                         {
-                            if (!controller.UpdatedNameWithVatUsa)
+                            if (_config["corectName"] == "true" && !controller.UpdatedNameWithVatUsa)
                             {
                                 string new_name = GetControllerName(controller.cid);
 
