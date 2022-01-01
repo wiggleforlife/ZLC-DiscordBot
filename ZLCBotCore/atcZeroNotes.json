@@ -1,7 +1,6 @@
 {
 	"atcZeroNotes": [
 		"**DID YOU KNOW?...**\n\nIn vERAM, when you complete the QS command for headings and speeds without using the (\u0096) key, this is information only YOU can see. To have it to be seen by other ERAM facilities, utilize the Clear Weather Symbol (u0096).\n\n*Real World Knowledge:*\n*In the real world, the headings and speeds can be seen by other ERAM facilities without the need for the Clear Weather Symbol and Ross (vERAM developer) is aware of the issue; Hopefully this will be corrected in later software releases.*",
-
 		"**DID YOU KNOW?...**\n\nIn vERAM, if you hold down CTRL and press the R key, you can cycle through the last commands you made, edit them and submit them again.\n\n*Example:*\n*If I just drew the fixes for the LEEHY STAR (.SLCLEEHYF), then I wanted to open the chart for it, I would simply CTRL+R, underline the last character (F), type C, and press enter.*",
 		"Hey... Hey you... Yeah you...\nMaybe you should get online and control for a little bit?",
 		"**DID YOU KNOW?...**\n\nIn vSTARS, you can press the END key on your keyboard, then Slew two different targets. This will show the minimum distance they are projected to be from each other and it will display the location it will occur.",
