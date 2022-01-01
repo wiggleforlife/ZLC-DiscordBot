@@ -19,7 +19,7 @@ namespace ZLCBotCore.Services
     public class VatsimApiService
     {
         public static List<string> ZlcPrefixes { get; protected set; } = new List<string> { "BIL", "BOI", "BZN", "SUN", "GPI", "GTF", "HLN", "IDA", "JAC", "TWF", "MSO", "OGD", "PIH", "PVU", "SLC", "ZLC" };
-        public static List<string> Suffixes { get; protected set; } = new List<string> { "OBS", "DEL", "GND", "TWR", "APP", "DEP", "CTR", "TMU" };
+        public static List<string> Suffixes { get; protected set; } = new List<string> { "DEL", "GND", "TWR", "APP", "DEP", "CTR", "TMU" };
 
         public bool VatsimServiceRun { get; protected set; } = false;
 
@@ -45,6 +45,12 @@ namespace ZLCBotCore.Services
         private void Run()
         {
             _logger.LogInformation("Service: VatsimApiService.Run Started");
+
+            if (_config["includeOBS"] == "true")
+            {
+                _logger.LogDebug("Service: VatsimApiService is Including Observer positions.");
+                Suffixes.Add("OBS");
+            }
 
             while (VatsimServiceRun)
             {
