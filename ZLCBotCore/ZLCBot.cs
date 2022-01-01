@@ -31,6 +31,7 @@ namespace ZLCBotCore
             {
                 _config["serviceCheckLimit"] = "17000";
                 _config["newPostLimit"] = "1";
+                _config["corectName"] = "false";
             }
 
             // configure the services 

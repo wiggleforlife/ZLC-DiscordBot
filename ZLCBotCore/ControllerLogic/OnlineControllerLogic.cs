@@ -173,17 +173,14 @@ namespace ZLCBotCore.ControllerLogic
 
             var embed = new EmbedBuilder();
 
-            embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC ", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
+            embed.Title = $"{_controllerLists.CurrentPostedControllers.Count}  -  ATC ONLINE";
             embed.Color = new Discord.Color(0, 38, 0);
             embed.Footer = new EmbedFooterBuilder { Text = $"Updated: {time}z" };
             
-            //embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true";
-
             if (_controllerLists.CurrentPostedControllers.Count() <= 0)
             {
-                embed.AddField(new EmbedFieldBuilder { Name = "\u200B", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
+                embed.Title = "NO ATC ONLINE";
                 embed.Color = new Discord.Color(38,0,0);
-                embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true" };
                 embed.Description = DescriptionLists.ChooseDescription();
                 return embed;
             }

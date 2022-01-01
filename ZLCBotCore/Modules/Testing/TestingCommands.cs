@@ -14,6 +14,8 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Testing
 {
+    [Name("Commands Under Development")]
+    [Summary("Commands that are under development or just used for testing things.")]
     public class TestingCommands : ModuleBase
     {
         private DiscordShardedClient _client;

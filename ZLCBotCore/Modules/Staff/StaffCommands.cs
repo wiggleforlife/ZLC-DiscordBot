@@ -14,6 +14,9 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Staff
 {
+    [Name("Staff Commands")]
+    [Summary("These commands are to assist the Staff of the server.")]
+    [RequireUserPermission(GuildPermission.ManageMessages & GuildPermission.ManageChannels)]
     public class StaffCommands : ModuleBase
     {
         private DiscordShardedClient _client;
@@ -41,13 +44,18 @@ namespace ZLCBotCore.Modules.Staff
 
         // Discord Staff only commands go here.
 
-        [Name("Online Controller Monitor")]
+        [Name("Start Online ATC Monitor")]
         [Summary("Starts the ATC Online Controller Monitor")]
         [Command("start", RunMode = RunMode.Async)]
-        [RequireUserPermission(GuildPermission.ManageMessages)]
-        [RequireUserPermission(GuildPermission.ManageChannels)]
         public async Task StartCommand()
         {
+            if (!Context.Channel.Name.Equals("online-atc"))
+            {
+                await Context.Message.ReplyAsync("This command has to be run in a channel called `online-atc`.");
+                _logger.LogWarning($"Command Usage: User, {Context.Message.Author} tried to use {Context.Message} in an incorrect channel [{Context.Channel.Name}].");
+                return;
+            }
+
             await Context.Message.DeleteAsync();
 
             var messages = await Context.Channel.GetMessagesAsync(Context.Message, Direction.Before, 10).FlattenAsync();
@@ -68,19 +76,19 @@ namespace ZLCBotCore.Modules.Staff
                 Thread.Sleep(5000);
             }
             _controllerLogic.Start(Context);
+            await Context.Message.Author.SendMessageAsync("Sucessfully **STARTED** the ZLC ATC Monitor service.");
         }
 
 
-        [Name("Online Controller Monitor")]
+        [Name("Stop Online ATC Monitor")]
         [Summary("Stops the ATC Online Controller Monitor")]
         [Command("stop", RunMode = RunMode.Async)]
-        [RequireUserPermission(GuildPermission.ManageMessages)]
-        [RequireUserPermission(GuildPermission.ManageChannels)]
         public async Task StopCommand()
         {
             await Context.Message.DeleteAsync();
 
             _controllerLogic.Stop();
+            await Context.Message.Author.SendMessageAsync("Sucessfully **STOPPED** the ZLC ATC Monitor service.");
         }
 
 
@@ -88,8 +96,6 @@ namespace ZLCBotCore.Modules.Staff
         [Summary("Deletes a number of messages (default: 10) in a channel. Note: Will not delete Pinned Messages.")]
         [Command("delete", RunMode = RunMode.Async)]
         [Alias("del", "purge")]
-        [RequireUserPermission(ChannelPermission.ManageMessages)]
-        [RequireUserPermission(GuildPermission.ManageChannels)]
         public async Task DeleteCommand(int amount = 10)
         {
             //await (Context.Channel as ITextChannel).DeleteMessagesAsync(messages);

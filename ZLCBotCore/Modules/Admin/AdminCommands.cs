@@ -13,6 +13,9 @@ using ZLCBotCore.Services;
 
 namespace ZLCBotCore.Modules.Admin
 {
+    [Name("Admin Commands")]
+    [Summary("These commands are to assist the Administrators of the server.")]
+    [RequireUserPermission(Discord.GuildPermission.Administrator)]
     public class AdminCommands : ModuleBase
     {
         private DiscordShardedClient _client;
@@ -38,6 +41,6 @@ namespace ZLCBotCore.Modules.Admin
             _logger.LogInformation("Module: Loaded AdminCommands");
         }
 
-        // Discord Administrator only commands go here [RequireUserPermission(Discord.GuildPermission.Administrator)]
+        // Discord Administrator only commands go here
     }
 }
