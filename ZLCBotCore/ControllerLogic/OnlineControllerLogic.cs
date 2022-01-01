@@ -166,16 +166,14 @@ namespace ZLCBotCore.ControllerLogic
             return controllerCids;
         }
 
-        internal EmbedBuilder FormatDiscordMessage()
+        private EmbedBuilder FormatDiscordMessage()
         {
             _logger.LogDebug("Function: OnlineControllerLogic.FormatDiscordMessage() Called");
             var time = DateTime.UtcNow.ToString("HH:mm");
 
             var embed = new EmbedBuilder();
 
-            //embed.Title = "ONLINE ZLC ATC:";
-            //embed.Description = $"\u200B";
-            embed.Author = new EmbedAuthorBuilder { Name = "**ONLINE ZLC ATC**", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
+            embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC ", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
             embed.Color = new Discord.Color(0, 38, 0);
             embed.Footer = new EmbedFooterBuilder { Text = $"Updated: {time}z" };
             
@@ -183,10 +181,10 @@ namespace ZLCBotCore.ControllerLogic
 
             if (_controllerLists.CurrentPostedControllers.Count() <= 0)
             {
-                embed.AddField(new EmbedFieldBuilder { Name = "-", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
+                embed.AddField(new EmbedFieldBuilder { Name = "\u200B", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
                 embed.Color = new Discord.Color(38,0,0);
-                embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
-                //embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true";
+                embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true" };
+                embed.Description = DescriptionLists.ChooseDescription();
                 return embed;
             }
 
