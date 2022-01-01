@@ -25,7 +25,6 @@ namespace ZLCBotCore.ControllerLogic
         private readonly ILogger _logger;
         private readonly IServiceProvider _services;
         private readonly ControllerLists _controllerLists;
-        private readonly DescriptionLists _descriptionLists;
         //private readonly VatsimApiService _vatsimApi;
 
         private DateTime lastNewPostTime;
@@ -42,7 +41,6 @@ namespace ZLCBotCore.ControllerLogic
             _logger = _services.GetRequiredService<ILogger<CommandHandler>>();
             _config = _services.GetRequiredService<IConfigurationRoot>();
             _controllerLists = _services.GetRequiredService<ControllerLists>();
-            _descriptionLists = _services.GetRequiredService<DescriptionLists>();
             //_vatsimApi = _services.GetRequiredService<VatsimApiService>();
 
             
@@ -183,7 +181,7 @@ namespace ZLCBotCore.ControllerLogic
             {
                 embed.Title = "NO ATC ONLINE";
                 embed.Color = new Discord.Color(38,0,0);
-                embed.Description = _descriptionLists.ChooseDescription();
+                embed.Description = _services.GetRequiredService<DescriptionLists>().ChooseDescription();
                 return embed;
             }
 
