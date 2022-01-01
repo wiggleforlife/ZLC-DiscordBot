@@ -57,40 +57,23 @@ namespace ZLCBotCore.ControllerLogic
                 {
                     if (DateTime.UtcNow.Subtract(lastNewPostTime).TotalMinutes >= double.Parse(_config["newPostLimit"]))
                     {
-                        // Update our current Posted List to be that same as the online list.
                         _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
-
-                        // Build out our Message! this will be used to either post new or edit previous.
                         MessageText = FormatDiscordMessage();
 
-                        // Check to see if we even have a previous message to delete.
                         if (!(Message is null))
                         {
-                            // We do so delete it.
-                            try
-                            {
-                                await Message.DeleteAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError($"Message: {ex.Message}");
-                            }
+                            // try to delete the previous message
+                            try { await Message.DeleteAsync(); } catch (Exception ex) { _logger.LogError($"Message: {ex.Message}");}
                         }
 
-                        // Post a new message and save it into our variable Message
                         Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
-
-                        // Update our LastNewPostTime
                         lastNewPostTime = DateTime.UtcNow;
                     }
                     else
                     {
-                        // Update our current Posted List to be that same as the online list.
                         _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
-
-                        // Build out our Message! this will be used to either post new or edit previous.
                         MessageText = FormatDiscordMessage();
-
+                        
                         // Check to see if we even have a previous message to edit.
                         try
                         {
@@ -99,20 +82,14 @@ namespace ZLCBotCore.ControllerLogic
                         catch (Exception ex)
                         {
                             _logger.LogError($"Message: {ex.Message}");
-
                             Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
-
-                            // Update our LastNewPostTime
                             lastNewPostTime = DateTime.UtcNow;
                         }
                     }
                 }
                 else
                 {
-                    // Update our current Posted List to be that same as the online list.
                     _controllerLists.CurrentPostedControllers = _controllerLists.ZLCOnlineControllers;
-
-                    // Build out our Message! this will be used to either post new or edit previous.
                     MessageText = FormatDiscordMessage();
 
                     // Check to see if we even have a previous message to edit.
@@ -123,10 +100,7 @@ namespace ZLCBotCore.ControllerLogic
                     catch (Exception ex)
                     {
                         _logger.LogError($"Message: {ex.Message}");
-
                         Message = await context.Channel.SendMessageAsync("", false, MessageText.Build());
-
-                        // Update our LastNewPostTime
                         lastNewPostTime = DateTime.UtcNow;
                     }
                 }
@@ -158,26 +132,6 @@ namespace ZLCBotCore.ControllerLogic
             // ExtractCidFromLists Looks at the online controller list (current) and the Posted Controller List (previous)
             Dictionary<string, List<int>> CidLists = ExtractCidFromLists();
 
-            // The ".Except" will return a list with ONLY the difference in the two lists (from above)
-            // Note: the way this is set up, it will only grab the differences from the online Controller List. See example below
-            // Example 1: 
-            //      PostedCids = [123, 456, 789]
-            //      OnlineCids = [123, 456, 789]
-            //         This would return Nothing (i.e. No change)
-            // Example 2: 
-            //      PostedCids = [123, 456, 789, 555]
-            //      OnlineCids = [123, 456, 789]
-            //         This would return Nothing (i.e. No change)
-            //         Since we only care about New OnlineCids
-            // Example 3: 
-            //      PostedCids = [123, 456, 789]
-            //      OnlineCids = [123, 456, 789, 777]
-            //         This would return One CID (i.e. 777)
-            // Example 4: 
-            //      PostedCids = [123, 456, 789]
-            //      OnlineCids = [123, 456, 789, 777, 888, 999]
-            //         This would return Three CIDs (i.e. 777, 888, 999)
-
             IEnumerable<int> differenceQuery = CidLists["OnlineCids"].Except(CidLists["PostedCids"]);
 
             if (differenceQuery.Count() == 0)
@@ -199,9 +153,6 @@ namespace ZLCBotCore.ControllerLogic
                 {"OnlineCids", new List<int>()}
             };
 
-            List<int> currentCids = new List<int>();
-            List<int> onlineCids = new List<int>();
-
             foreach (VatsimController currentController in _controllerLists.CurrentPostedControllers)
             {
                 controllerCids["PostedCids"].Add(currentController.cid);
@@ -222,16 +173,20 @@ namespace ZLCBotCore.ControllerLogic
 
             var embed = new EmbedBuilder();
 
-            embed.Title = "ONLINE ZLC ATC:";
-            //embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC" };
+            //embed.Title = "ONLINE ZLC ATC:";
+            //embed.Description = $"\u200B";
+            embed.Author = new EmbedAuthorBuilder { Name = "**ONLINE ZLC ATC**", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
             embed.Color = new Discord.Color(0, 38, 0);
             embed.Footer = new EmbedFooterBuilder { Text = $"Updated: {time}z" };
-            embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true";
+            
+            //embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true";
 
             if (_controllerLists.CurrentPostedControllers.Count() <= 0)
             {
                 embed.AddField(new EmbedFieldBuilder { Name = "-", Value = $"None at this time.\n{'\u200B'}\n{'\u200B'}\n" });
                 embed.Color = new Discord.Color(38,0,0);
+                embed.Author = new EmbedAuthorBuilder { Name = "ONLINE ZLC ATC", IconUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail2.png?raw=true" };
+                //embed.ThumbnailUrl = "https://github.com/Nikolai558/ZLC-DiscordBot/blob/main/ZLCBotCore/img/thumbnail.png?raw=true";
                 return embed;
             }
 
@@ -244,7 +199,8 @@ namespace ZLCBotCore.ControllerLogic
                 { "TWR", new List<VatsimController>() },
                 { "GND", new List<VatsimController>() },
                 { "DEL", new List<VatsimController>() },
-                { "OBS", new List<VatsimController>() }
+                { "OBS", new List<VatsimController>() },
+                { "OTHER", new List<VatsimController>() }
             };
 
             foreach (var onlineController in _controllerLists.CurrentPostedControllers)
@@ -252,7 +208,15 @@ namespace ZLCBotCore.ControllerLogic
                 var splitCallsign = onlineController.callsign.Split('_');
                 var suffix = splitCallsign[^1];
 
-                atcBySuffix[suffix].Add(onlineController);
+                if (atcBySuffix.Keys.Contains(suffix))
+                {
+                    atcBySuffix[suffix].Add(onlineController);
+                }
+                else
+                {
+                    atcBySuffix["OTHER"].Add(onlineController);
+
+                }
             }
 
             foreach (var suffix in atcBySuffix.Keys)
@@ -278,7 +242,7 @@ namespace ZLCBotCore.ControllerLogic
                         case "DEL": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Clearance__**", Value = $"{valueForField}" }); break; }
                         case "TWR": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Tower__**", Value = $"{valueForField}" }); break; }
                         case "OBS": { embed.AddField(new EmbedFieldBuilder { Name = $"**__Observer__**", Value = $"{valueForField}" }); break; }
-                        default: break;
+                        default: { embed.AddField(new EmbedFieldBuilder { Name = $"**__Other__**", Value = $"{valueForField}" }); break; }
                     }
                 }
             }
