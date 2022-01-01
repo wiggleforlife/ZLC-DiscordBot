@@ -54,6 +54,12 @@ namespace ZLCBotCore.Modules.Owner
             {
                 case "start":
                     {
+                        if (_vatsimApi.VatsimServiceRun)
+                        {
+                            await Context.Message.Author.SendMessageAsync($"Vatsim API bot service is already running...");
+                            _logger.LogWarning("Service: Vatsim API Bot service is already running.");
+                            return;
+                        }
                         _vatsimApi.Start();
                         await Context.Message.Author.SendMessageAsync($"Started Vatsim API bot Service");
                         break;

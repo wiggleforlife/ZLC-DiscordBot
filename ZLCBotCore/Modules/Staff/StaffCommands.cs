@@ -55,6 +55,12 @@ namespace ZLCBotCore.Modules.Staff
                 _logger.LogWarning($"Command Usage: User, {Context.Message.Author} tried to use {Context.Message} in an incorrect channel [{Context.Channel.Name}].");
                 return;
             }
+            if (_controllerLogic.OnlineControllerRun)
+            {
+                await Context.Message.ReplyAsync("The ATC Online Monitoring service is already running.");
+                _logger.LogWarning($"Service: The ATC Online monitoring service is already running.");
+                return;
+            }
 
             await Context.Message.DeleteAsync();
 
