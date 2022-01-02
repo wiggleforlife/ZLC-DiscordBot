@@ -122,6 +122,7 @@ namespace ZLCBotCore.Services
                                 if (postedController.cid == controller.cid)
                                 {
                                     controller.UpdatedNameWithVatUsa = postedController.UpdatedNameWithVatUsa;
+                                    controller.name = postedController.name;
                                     break;
                                 }
                             }
