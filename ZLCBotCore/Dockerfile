@@ -12,5 +12,5 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build-en /app/out .
 
-COPY config.json
+COPY config.json .
 ENTRYPOINT ["dotnet", "ZLCBotCore.dll"]
